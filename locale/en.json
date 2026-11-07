@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Scrapling web scraping",
+    "description": "Connects Scrapling's MCP server so the agent can fetch pages over HTTP or a stealth browser, drive browser actions, and read page structure."
+  }
+}
