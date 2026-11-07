@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Scrapling 网页抓取",
+    "description": "接入 Scrapling 的 MCP 服务器，让智能体通过 HTTP 或隐身浏览器抓取网页、执行浏览器操作并读取页面结构。"
+  }
+}
