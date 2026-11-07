@@ -1,0 +1,11 @@
+- insert:
+    - id: scrapling-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: scrapling
+        transport: stdio
+        command: 'C:\Users\Administrator\AppData\Roaming\Python\Python315\Scripts\scrapling-mcp.exe'
+        args:
+          - '--executable-path'
+          - 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+        failOnStartupError: true
