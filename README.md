@@ -1,10 +1,32 @@
 # Scrapling MCP bundle for DeepSeek Harness
 
 Wraps the MCP server that ships with [Scrapling](https://github.com/D4Vinci/Scrapling) so the
-agent gets Scrapling's 18 scraping tools (`mcp__scrapling__*`) in every session.
+agent gets Scrapling's HTTP fetch and stealth-browser scraping tools in every session.
 
 This bundle contains no runtime code of its own — it only inserts the generic MCP client
-(`@deepseek-ai/dsh-mcp-client`) pointed at the `scrapling-mcp` console script.
+(`@deepseek-ai/dsh-mcp-client`) pointed at the `scrapling-mcp` console script over stdio.
+It has no build step and no npm dependencies of its own.
+
+## Host prerequisites
+
+- Python 3.10+ with `scrapling[ai]` (the extras pull in the MCP server dependencies):
+
+  ```bash
+  pip install "scrapling[ai]"
+  ```
+
+  This puts the `scrapling-mcp` console script on your `PATH`; `cordis.patch.yml` calls it by
+  name, so no absolute path has to be edited.
+
+- A Chromium-compatible browser. Install one with Scrapling's own downloader:
+
+  ```bash
+  scrapling install
+  ```
+
+`failOnStartupError: false` means the harness starts normally even when `scrapling-mcp` or
+Chromium is not available yet; the tools simply become available once the prerequisites are
+installed and the entry is reloaded.
 
 ## What it adds
 
@@ -15,15 +37,6 @@ This bundle contains no runtime code of its own — it only inserts the generic 
 | Browser sessions | `browser_open`, `browser_fetch`, `browser_extract`, `browser_actions`, `browser_evaluate`, `browser_screenshot`, `browser_observe`, `browser_network_requests`, `browser_network_request`, `browser_save_state`, `browser_load_state` |
 | Housekeeping | `list_sessions`, `close_session` |
 
-## Host prerequisites
-
-- Python 3.10+ with `scrapling[ai]` (the extras pull in the MCP server dependencies):
-  `pip install "scrapling[ai]"`
-- A Chromium-compatible browser. This machine has no Playwright/Patchright download, so
-  `cordis.patch.yml` passes `--executable-path` pointing at the locally installed Chrome:
-  `C:/Program Files/Google/Chrome/Application/chrome.exe`. Change that path if Chrome lives
-  elsewhere, or run `scrapling install` and drop the argument to use a downloaded Chromium.
-
 ## Files
 
 - `cordis.patch.yml` — inserts the MCP client entry `scrapling-mcp` (stdio transport).
@@ -31,22 +44,33 @@ This bundle contains no runtime code of its own — it only inserts the generic 
 - `locale/en.json`, `locale/zh.json` — plugin inventory title/description.
 - `icon.svg` — inventory icon.
 
-## Install / update
+## Install
 
-Install with the harness plugin manager (agent tool `plugin_manager`, action `install_bundle`)
-or the desktop plugin page, pointing at this directory:
+Add the bundle from GitHub with the harness plugin manager:
 
-The profile links this directory (`@local/scrapling-mcp` → this folder), so editing
-`cordis.patch.yml` takes effect after the entry is disabled and re-enabled (or after the app
-restarts) — the MCP client is only configured at entry load time.
+```bash
+dsh plugin --profile desktop add github:foolfu86/dsh-scrapling-mcp
+```
 
-## Portability (read before installing on a different machine)
+Use whichever profile name you want the tools available in (for example `demo` for a throwaway
+test profile). Verify the config without booting the app:
 
-`cordis.patch.yml` contains two absolute paths from the author's Windows host:
+```bash
+dsh --profile desktop --dump-config
+```
 
-- `command`: the `scrapling-mcp` console script (the Python `Scripts` directory).
-- `args[1]`: `--executable-path` for a Chromium-compatible browser.
+Remove it again with:
 
-On another machine, edit both values to match your own Python and browser locations,
-or put `scrapling-mcp` on PATH and set `command` to `scrapling-mcp` with no `args`.
-Everything else in the bundle is portable.
+```bash
+dsh plugin --profile desktop remove dsh-scrapling-mcp
+```
+
+You can also install through the agent tool `plugin_manager` (action `install_bundle`) or the
+desktop plugin page, pointing at this directory. The MCP client is configured at entry load
+time, so after editing `cordis.patch.yml` disable and re-enable the entry (or restart the app).
+
+## Portability
+
+`cordis.patch.yml` contains no host-specific paths: it calls `scrapling-mcp` from `PATH` and
+lets Scrapling find its own Chromium installation. Install the prerequisites on the target
+machine and the same bundle works unchanged.
