@@ -49,6 +49,12 @@ installed and the entry is reloaded.
 Add the bundle from GitHub with the harness plugin manager:
 
 ```bash
+dsh plugin add github:foolfu86/dsh-scrapling-mcp
+```
+
+To pin it to a specific profile (recommended, so you can verify the config without booting the app):
+
+```bash
 dsh plugin --profile desktop add github:foolfu86/dsh-scrapling-mcp
 ```
 
